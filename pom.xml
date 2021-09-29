@@ -19,6 +19,11 @@
       <artifactId>junit</artifactId>
       <version>4.10</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>1.8</version>
+    </dependency>
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -48,6 +53,14 @@
           <serverId>ossrh</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>8</source>
+          <target>8</target>
         </configuration>
       </plugin>
     </plugins>
@@ -86,7 +99,7 @@
     </snapshotRepository>
   </distributionManagement>
 
-  <profiles>
+  <!--profiles>
     <profile>
       <id>sign</id>
       <build>
@@ -144,7 +157,7 @@
         </plugins>
       </build>
     </profile>
-  </profiles>
+  </profiles-->
 
 </project>
 
