@@ -118,12 +118,19 @@ public class ArimaTest {
             temp += Math.pow(forecast[i] - trueForecastData[i], 2);
         }
         final double rmse = Math.pow(temp / forecast.length, 0.5);
+        double mape = 0.0;
+        for (int i = 0; i < forecast.length; ++i) {
+            mape += Math.pow(forecast[i] - trueForecastData[i], 2)/trueForecastData[i];
+        }
+        mape = mape/forecast.length;
         sb.append("RMSE = ").append(dbl2str(rmse)).append("\n\n");
         System.out.println(sb.toString());
-        sum += rmse;
+
+        //mape
+        sum += mape;
         n++;
-        if(rmse>20)
-        rmsermse.add(rmse);
+        //if(rmse>20)
+        rmsermse.add(mape);
         return forecast;
     }
     double sum = 0;
@@ -426,9 +433,16 @@ public class ArimaTest {
             System.out.print(x+",");
         }
     }
+
     @Test
     public void testaction(){
-        String inputFolder = "/home/linhao/sources/java_workpacle/alibaba_2018/intp_dir/instanceid_9560.csv";
+
+        String linuxpath = "/home/linhao/sources/java_workpacle/alibaba_2018/intp_dir/instanceid_9560.csv";
+        String macpath = "/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/instanceid_c_4680.csv";
+
+        String inputFolder = macpath;
+
+
         System.out.println(inputFolder);
         File file = new File(inputFolder);
         //double [] traces = action(file);
@@ -468,7 +482,7 @@ public class ArimaTest {
                 try {
                     double [] forecastResult = commonTestSimpleForecast("simplelsh",origin,answer,3,p,d,q,P,D,Q,m);
 
-                    System.out.println("*******RMSE***** "+rmsermse.get(rmsermse.size()-1));
+                    //System.out.println("*******RMSE***** "+rmsermse.get(rmsermse.size()-1));
 //                    rmse = commonTestCalculateRMSE("cscchris_test",
 //                            forecastResult, answer, 3, p, d, q, P, D, Q, m);
 //                    rmsesss.add(rmse);
@@ -486,12 +500,12 @@ public class ArimaTest {
 
         System.out.println(sum/n);
 
-        /*
+
         for (Double aDouble : rmsermse) {
             System.out.println(aDouble);
         }
 
-         */
+
 
     }
     public double [] action(File subfile){
