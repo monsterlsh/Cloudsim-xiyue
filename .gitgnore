@@ -5,4 +5,10 @@
 *.iml
 *.DS_Store
 .git
+<<<<<<< HEAD
 target
+=======
+__pycache__
+target
+*.pyo
+>>>>>>> 6e2a560 (mac)

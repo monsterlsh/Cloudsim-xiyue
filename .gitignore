@@ -1,0 +1,16 @@
+*.iml
+*.idea
+*.pyc
+.DS_Store
+.git
+.idea
+__pycache__
+target
+*.class
+*.log
+target/
+.idea/*
+.gradle
+.classpath
+.project
+

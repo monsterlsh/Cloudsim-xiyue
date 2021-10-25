@@ -333,6 +333,7 @@ public class ArimaTest {
         System.out.printf("Best (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n",
             best_rmse,best_p,best_d,best_q,best_P,best_D,best_Q,best_m);
 }
+    @Test
     public void findParam() {
         final int[] params = new int[]{0, 1, 2, 3};
         int best_p, best_d, best_q, best_P, best_D, best_Q, best_m;
@@ -354,6 +355,7 @@ public class ArimaTest {
             }
         System.out.printf("Best (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n",
                 best_rmse,best_p,best_d,best_q,best_P,best_D,best_Q,best_m);
+        double lsh = commonTestCalculateRMSE("lsh", Datasets.cscchris_val, Datasets.cscchris_answer, 6, best_p, best_d, best_q, best_P, best_D, best_Q, best_m);
     }
 
 }
