@@ -516,7 +516,7 @@ public class ArimaTest {
         System.out.println();
         double[] traces = trace(subfile_name);
         for(int i=10;i<traces.length;i++){
-            double[] origin = new double[10];
+            double[] origin = new double[Math.min(i,30)];
             double[] answer = new double[3];
             System.arraycopy(traces, i-10, origin, 0, 10);
             if(i<traces.length-3)
@@ -536,8 +536,6 @@ public class ArimaTest {
             System.out.println("*********************************");
         }
     return traces;
-
-
         //System.out.println(subfile_name.substring(last)+" accuracy : ");
     }
     public double [] trace(String file) {
