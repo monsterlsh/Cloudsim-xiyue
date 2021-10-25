@@ -119,7 +119,7 @@ public class Tarin {
     @Test
     public void train_60() throws IOException {
         String mac = "resources/instanceid_c_4680.csv";
-        int forecastSize = 6;
+        int forecastSize = 1;
         double[] traces = trace(mac);
         final int[] params = new int[]{0, 1, 2, 3};
         final int[] paramd = new int[]{0, 1,2};
