@@ -54,7 +54,7 @@ public class Tarin {
         bufferWritter.close();
     }
     public void  write(StringBuilder builder)throws IOException{
-        File file =new File("resources/instance4680_all.txt");
+        File file =new File("resources/instance_16064_all.txt");
         if(!file.exists()){
             file.createNewFile();
         }
@@ -118,7 +118,7 @@ public class Tarin {
     }
     @Test
     public void train_60() throws IOException {
-        String mac = "resources/instanceid_c_4680.csv";
+        String mac = "resources/instanceid_c_16064.csv";
         int forecastSize = 1;
         double[] traces = trace(mac);
         final int[] params = new int[]{0, 1, 2, 3};
