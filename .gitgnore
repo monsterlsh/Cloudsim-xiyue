@@ -1,0 +1,8 @@
+*.class
+*.apk
+.*.yml
+*.idea
+*.iml
+*.DS_Store
+.git
+target
