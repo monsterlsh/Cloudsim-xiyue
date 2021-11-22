@@ -8,13 +8,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Tarin {
-    String wininput = "D:\\Data\\param.txt";
+    static String wininput = "D:\\Data\\param.txt";
+    static final String tracePath="/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/intp_dir/instanceid_1.csv";
     public void fileWrite(String data){
         try{
             File file =new File(wininput);
@@ -37,6 +39,49 @@ public class Tarin {
         }
     }
     static List<double []>paramList = new ArrayList<>();
+
+
+
+    public void  write(StringBuilder builder,String name)throws IOException{
+        File file =new File(name);
+        if(!file.exists()){
+            file.createNewFile();
+        }
+        FileWriter fileWritter = new FileWriter(file.getAbsoluteFile());
+        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+        bufferWritter.write(builder.toString());
+        bufferWritter.close();
+
+    }
+    //一个文件中的80%
+    double iterator(double [] traces,int forecastSize,ArimaParams arimaParams,StringBuilder builder,double precent,int peri){
+        double rmseAll = 0.0;
+        BigDecimal bigrmse = new BigDecimal(0.0);
+        int size = (int)(traces.length*precent),k=size-peri,len=peri;
+        for(int i=len;i<traces.length*precent;i+=forecastSize){
+            double[] origin = new double[len];
+            double[] answer = new double[forecastSize];
+            System.arraycopy(traces, i-len, origin, 0, origin.length);
+            if(i<=traces.length-forecastSize)
+                System.arraycopy(traces, i, answer, 0, forecastSize);
+            ForecastResult forecastResult = Arima.forecast_arima(origin, forecastSize, arimaParams);
+            double[] forecast = forecastResult.getForecast();
+            double temp = 0.0;
+            for (int j = 0; j < forecast.length; ++j) {
+                temp += Math.pow(forecast
+                        [j] - answer[j], 2);
+            }
+            final double rmse = Math.pow(temp / forecast.length, 0.5)/k;
+            rmseAll += rmse;
+            bigrmse = bigrmse.add(new BigDecimal(rmse));
+            //builder.append("[data I : " ).append(i).append("rmse:" + rmse).append("] \n");
+        }
+        double tmp = rmseAll;
+        rmseAll = bigrmse.doubleValue();
+        builder.append(" the rmse is : ").append(rmseAll).append("\n");
+        return rmseAll;
+
+    }
     @Test
     public void readInstance() throws IOException {
 //        String filename = "resources/instanceid_c_4680.csv";
@@ -53,76 +98,15 @@ public class Tarin {
 
         bufferWritter.close();
     }
-    public void  write(StringBuilder builder)throws IOException{
-        File file =new File("resources/instance_16064_all.txt");
-        if(!file.exists()){
-            file.createNewFile();
-        }
-        FileWriter fileWritter = new FileWriter(file.getAbsoluteFile());
-        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
-        bufferWritter.write(builder.toString());
-        bufferWritter.close();
 
-    }
     @Test
-    public void  test(){
-        //String inputFolder = NonPowerAware.class.getClassLoader().getResource("workload/alibaba2017/instance_all").getPath();
-        String inputFolder = "/home/linhao/sources/java_workpacle/alibaba_2018/intp_dir";
-        String winPath = "D:\\Data\\Traces\\instanceid_c_9560.csv";
-        inputFolder = winPath;
-        String winTest = "D:\\Data\\Traces\\instanceid_c_9561.csv";
-        String mac = "resources/instanceid_c_4680.csv";
-        int forecastSize = 6;
-        double[] traces = trace(mac);
-        for(int i=10;i<traces.length;i+=forecastSize){
-            double[] origin = new double[Math.min(i,30)];
-            double[] answer = new double[forecastSize];
-            System.arraycopy(traces, Math.max(0,i-30), origin, 0, origin.length);
-            if(i<traces.length-forecastSize)
-                System.arraycopy(traces, i, answer, 0, forecastSize);
-            double[] tmp = findParam(origin, answer, forecastSize);
-            System.out.println(mac + "end *********************************\n");
-            String flinename = "D:\\Data\\param.txt";
-
-            for (double v : tmp) {
-                System.out.print(v+",");
-            }
-            System.out.println();
-        }
-    }
-    double iterator(double [] traces,int forecastSize,ArimaParams arimaParams,StringBuilder builder){
-        double rmseAll = 0.0;
-        int k=0;
-        for(int i=10;i<traces.length;i+=forecastSize){
-            double[] origin = new double[Math.min(i,30)];
-            double[] answer = new double[forecastSize];
-            System.arraycopy(traces, Math.max(0,i-30), origin, 0, origin.length);
-            if(i<traces.length-forecastSize)
-                System.arraycopy(traces, i, answer, 0, forecastSize);
-            ForecastResult forecastResult = Arima.forecast_arima(origin, forecastSize, arimaParams);
-            double[] forecast = forecastResult.getForecast();
-            double temp = 0.0;
-            for (int j = 0; j < forecast.length; ++j) {
-                temp += Math.pow(forecast
-                        [j] - answer[j], 2);
-            }
-            final double rmse = Math.pow(temp / forecast.length, 0.5);
-            rmseAll += rmse;
-            k++;
-            //builder.append("[data I : " ).append(i).append("rmse:" + rmse).append("] \n");
-        }
-        rmseAll /= k;
-        builder.append(" the rmse is : ").append(rmseAll).append("\n");
-        return rmseAll;
-
-    }
-    @Test
-    public void train_60() throws IOException {
-        String mac = "resources/instanceid_c_16064.csv";
+    public void train_80() throws IOException {
+        String mac =tracePath;
+        double prenctile = 0.8;
         int forecastSize = 1;
         double[] traces = trace(mac);
-        final int[] params = new int[]{0, 1, 2, 3};
-        final int[] paramd = new int[]{0, 1,2};
+        final int[] params = new int[]{2, 1, 0};
+        final int[] paramd = new int[]{1, 0};
         int best_p, best_d, best_q, best_P, best_D, best_Q, best_m;
         best_p = best_d = best_q = best_P = best_D = best_Q = best_m = -1;
         double best_rmse = -1.0;
@@ -132,8 +116,10 @@ public class Tarin {
             for(int D : params) for(int Q : params) for(int m : params) try {
                 i++;
                 ArimaParams arimaParams = new ArimaParams(p, d, q, P, D, Q, m);
-                stringBuilder.append(i).append("th; param: ").append(p+",").append(d+",").append(q+",").append(P+",").append(D+",").append(Q+",").append(m+",and then ");
-                final double rmse = iterator(traces, forecastSize, arimaParams, stringBuilder);
+                stringBuilder.append("******");
+                stringBuilder.append(i).append("th;******\n param: ").append(p+",").append(d+",").append(q+",").append(P+",").append(D+",").append(Q+",").append(m+",and then ");
+
+                final double rmse = iterator(traces, forecastSize, arimaParams, stringBuilder,prenctile,200);
                 if (best_rmse < 0.0 || rmse < best_rmse) {
                     best_rmse = rmse; best_p = p; best_d = d; best_q = q;
                     best_P = P; best_D = D; best_Q = q; best_m = m;
@@ -151,7 +137,58 @@ public class Tarin {
                 best_rmse,best_p,best_d,best_q,best_P,best_D,best_Q,best_m);
             stringBuilder.append("the best min is ").append(min);
             stringBuilder.append("????");
-            write(stringBuilder);
+            write(stringBuilder,"resources/param80.txt");
+    }
+
+    double test_last_20(double [] traces,int forecastSize,ArimaParams arimaParams,StringBuilder builder){
+        double rmseAll = 0.0;
+        int k=0;
+        double rmse;
+        int lens =2000;
+        //double [] history = new double[traces.length-(int)(traces.length*0.8)];
+        //System.arraycopy(traces, (int)(traces.length*0.8), history, 0, history.length);
+        for(int i=(int)(traces.length*0.8);i<traces.length;i+=forecastSize){
+            double[] origin = new double[lens];
+            double[] answer = new double[forecastSize];
+            System.arraycopy(traces, i-origin.length, origin, 0, origin.length);
+            if(i<=traces.length-forecastSize)
+                System.arraycopy(traces, i, answer, 0, forecastSize);
+            ForecastResult forecastResult = null;
+            try{
+                forecastResult = Arima.forecast_arima(origin, forecastSize, arimaParams);
+                double[] forecast = forecastResult.getForecast();
+                double temp = 0.0;
+                for (int j = 0; j < forecast.length; ++j) {
+                    temp += Math.pow(forecast
+                            [j] - answer[j], 2);
+                }
+                rmse = Math.pow(temp / forecast.length, 0.5);
+                rmseAll += rmse;
+            }
+            catch (Exception e){
+                rmse = findParam(origin,answer,forecastSize)[0];
+            }
+
+
+            k++;
+            builder.append("[data I : " ).append(i).append("rmse:" + rmse).append("] \n");
+        }
+        rmseAll /= k;
+        builder.append(" the rmse is : ").append(rmseAll).append("\n");
+        System.out.println(builder);
+        return rmseAll;
+    }
+    @Test
+    public void test_20_train() throws IOException {
+        String mac = tracePath;
+        int forecastSize = 1;
+        double[] traces = trace(mac);
+        //ArimaParams arimaParams = new ArimaParams(2,1,0,2,0,0,2);
+        ArimaParams arimaParams = new ArimaParams(2, 1, 2, 2, 2, 2, 2);
+        StringBuilder builder = new StringBuilder();
+
+        test_last_20(traces,forecastSize,arimaParams,builder);
+        write(builder,"resources/param_last20.txt");
     }
     public ArimaParams averageParam(){
         double [] params = new double[8];
@@ -282,7 +319,7 @@ public class Tarin {
                 }
                 final double rmse = Math.pow(temp / forecast.length, 0.5);
                 sb.append("RMSE = ").append(rmse).append("\n\n");
-                System.out.println(sb.toString());
+                //System.out.println(sb.toString());
                 if (best_rmse < 0.0 || rmse < best_rmse) {
                     best_rmse = rmse; best_p = p; best_d = d; best_q = q;
                     best_P = P; best_D = D; best_Q = q; best_m = m;
@@ -290,11 +327,11 @@ public class Tarin {
                     for (int i = 0; i < forecast.length; ++i) {
                         res[i] = forecast[i];
                     }
-                    System.out.printf(
-                            "Better (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,p,d,q,P,D,Q,m);
+//                    System.out.printf(
+//                            "Better (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,p,d,q,P,D,Q,m);
                 }
             } catch (final Exception ex) {
-                System.out.printf("Invalid: (p,d,q,P,D,Q,m)=(%d,%d,%d,%d,%d,%d,%d)\n", p,d,q,P,D,Q,m);
+//                System.out.printf("Invalid: (p,d,q,P,D,Q,m)=(%d,%d,%d,%d,%d,%d,%d)\n", p,d,q,P,D,Q,m);
 
             }
         double [] params_array={best_rmse,best_p,best_d,best_q,best_P,best_D,best_Q,best_m};
@@ -302,7 +339,7 @@ public class Tarin {
         System.out.printf("Best (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n", best_rmse,best_p,best_d,best_q,best_P,best_D,best_Q,best_m);
         //System.out.println(res);
         paramList.add(params_array);
-        return res;
+        return params_array;
     }
 
     public double [] trace(String file) {

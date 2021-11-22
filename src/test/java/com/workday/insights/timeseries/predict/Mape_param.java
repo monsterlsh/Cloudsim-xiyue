@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Mape_param {
+    static final String tracePath="/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/intp_dir/instanceid_90.csv";
     private double commonTestCalculateMAPE(final String name, final double[] trainingData,
                                            final double[] trueForecastData, final int forecastSize,
                                            int p, int d, int q, int P, int D, int Q, int m) {
@@ -82,7 +83,7 @@ public class Mape_param {
     public void test_mape_findpqd(){
         final String winPath = "";
         final String linuxPath = "/home/linhao/sources/java_workpacle/alibaba_2018/intp_dir/instanceid_9560.csv";
-        final String macPath = "/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/instanceid_c_4680.csv";
+        final String macPath = "/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/intp_dir/instanceid_90.csv";
         System.out.println(macPath);
         File file = new File(macPath);
         //get values of file
@@ -91,7 +92,7 @@ public class Mape_param {
         int [][] parmas ={{}};
         List<List<Double>> mapOfFile = new ArrayList<>();
         double avg_MAPE = 0.0;
-        double trainSize = traces.length * 0.6;
+        double trainSize = traces.length * 0.8;
         int sizeOfhistory = 30;
         for(int i=sizeOfhistory;i<trainSize;i+=foresSize){
             //每隔5min
@@ -141,10 +142,10 @@ public class Mape_param {
     public void train_main(){
          String winPath = "D:\\Data\\Traces";
          String linuxPath = "/home/linhao/sources/java_workpacle/alibaba_2018/intp_dir/instanceid_9560.csv";
-         String macPath = "/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/instanceid_c_4680.csv";
+         String macPath = tracePath;
          File trace_file = new File(winPath);
          File [] files = trace_file.listFiles();
-         int trainSize = (int)(files.length*0.6),testSize = (int)(files.length*0.2),yanzheng = testSize;
+         int trainSize = (int)(files.length*0.8),testSize = (int)(files.length*0.2),yanzheng = testSize;
          File [] traning = new File[trainSize];
          File []  testing = new File[testSize];
          System.arraycopy(files,0,traning,0,testSize);

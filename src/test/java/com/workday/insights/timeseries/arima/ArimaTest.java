@@ -23,7 +23,7 @@ public class ArimaTest {
 
     private final DecimalFormat df = new DecimalFormat("##.#####");
 
-    private double[] commonTestLogic(final String name, final double[] dataSet,
+    public double[] commonTestLogic(final String name, final double[] dataSet,
         final double forecastRatio,
         int p, int d, int q, int P, int D, int Q, int m) {
 
@@ -41,7 +41,7 @@ public class ArimaTest {
             P, D, Q, m);
     }
 
-    private double forecastSinglePointLogic(final String name, final double[] dataSet,
+    public double forecastSinglePointLogic(final String name, final double[] dataSet,
         int p, int d, int q, int P, int D, int Q, int m) {
         //Compute forecast and training size
         final int forecastSize = 1;
@@ -63,7 +63,7 @@ public class ArimaTest {
         return padded;
     }
     
-    private double[] commonTestSimpleForecast(final String name, final double[] trainingData,
+    public double[] commonTestSimpleForecast(final String name, final double[] trainingData,
         final double[] trueForecastData, final int forecastSize,
         int p, int d, int q, int P, int D, int Q, int m) {
 
@@ -110,7 +110,7 @@ public class ArimaTest {
         return forecast;
     }
 
-    private double commonTestCalculateRMSE(final String name, final double[] trainingData,
+    public double commonTestCalculateRMSE(final String name, final double[] trainingData,
         final double[] trueForecastData, final int forecastSize,
         int p, int d, int q, int P, int D, int Q, int m) {
 
