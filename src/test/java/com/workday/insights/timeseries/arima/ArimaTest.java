@@ -156,50 +156,7 @@ public class ArimaTest {
         System.out.println(sb.toString());
         return rmse;
     }
-    @Test
-    public void lsh_test(){
-        double[] dataArray = new double[] {0.11999, 0.04002666666666664, 0.03000333333333333, 0.02000333333333333, 0.049990000000000014, 0.05, 0.04000333333333333, 0.08998333333333333, 0.010026666666666673, 0.059983333333333326};
 
-// Set ARIMA model parameters.
-        int p = 3;
-        int d = 0;
-        int q = 3;
-        int P = 1;
-        int D = 1;
-        int Q = 0;
-        int m = 0;
-//        p =1;
-//        d =2;
-//        q=0;
-        int forecastSize = 5;
-
-// Obtain forecast result. The structure contains forecasted values and performance metric etc.
-        ForecastResult forecastResult = Arima.forecast_arima(dataArray, forecastSize, new ArimaParams(p, d, q, P, D, Q, m));
-
-// Read forecast values
-        double[] forecastData = forecastResult.getForecast(); // in this example, it will return { 2 }
-
-// You can obtain upper- and lower-bounds of confidence intervals on forecast values.
-// By default, it computes at 95%-confidence level. This value can be adjusted in ForecastUtil.java
-        double[] uppers = forecastResult.getForecastUpperConf();
-        double[] lowers = forecastResult.getForecastLowerConf();
-
-// You can also obtain the root mean-square error as validation metric.
-        double rmse = forecastResult.getRMSE();
-
-// It also provides the maximum normalized variance of the forecast values and their confidence interval.
-        double maxNormalizedVariance = forecastResult.getMaxNormalizedVariance();
-
-// Finally you can read log messages.
-        String log = forecastResult.getLog();
-        System.out.println(log);
-        for (double forecastDatum : forecastData) {
-            System.out.print(forecastDatum+" ");
-        }
-        System.out.println();
-        //System.out.println(forecastData.toString());
-        System.out.println("rmse"+rmse);
-    }
 
     private void commonAssertionLogic(double[] dataSet, double actualValue, double delta) {
         double lastTrueValue = dataSet[dataSet.length - 1];

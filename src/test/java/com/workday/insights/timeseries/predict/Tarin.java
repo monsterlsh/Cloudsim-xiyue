@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 
 public class Tarin {
     static String wininput = "D:\\Data\\param.txt";
-    static final String tracePath="/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/intp_dir/instanceid_1.csv";
+    static final String tracePath="/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/instanceid_1.csv";
+    static final String wintracePath = "resources/instanceid_1.csv";
     public void fileWrite(String data){
         try{
             File file =new File(wininput);
@@ -54,11 +55,11 @@ public class Tarin {
 
     }
     //一个文件中的80%
-    double iterator(double [] traces,int forecastSize,ArimaParams arimaParams,StringBuilder builder,double precent,int peri){
+    double iterator(double [] traces,int forecastSize,ArimaParams arimaParams,StringBuilder builder,double precent,int len,int start){
         double rmseAll = 0.0;
         BigDecimal bigrmse = new BigDecimal(0.0);
-        int size = (int)(traces.length*precent),k=size-peri,len=peri;
-        for(int i=len;i<traces.length*precent;i+=forecastSize){
+        int size = (int)(traces.length*precent),k=size-start;
+        for(int i=start;i<size;i+=forecastSize){
             double[] origin = new double[len];
             double[] answer = new double[forecastSize];
             System.arraycopy(traces, i-len, origin, 0, origin.length);
@@ -73,7 +74,10 @@ public class Tarin {
             }
             final double rmse = Math.pow(temp / forecast.length, 0.5)/k;
             rmseAll += rmse;
+
             bigrmse = bigrmse.add(new BigDecimal(rmse));
+            if(rmseAll>50) {
+                System.out.println("大于50 pass");break;}
             //builder.append("[data I : " ).append(i).append("rmse:" + rmse).append("] \n");
         }
         double tmp = rmseAll;
@@ -82,6 +86,8 @@ public class Tarin {
         return rmseAll;
 
     }
+
+
     @Test
     public void readInstance() throws IOException {
 //        String filename = "resources/instanceid_c_4680.csv";
@@ -98,13 +104,65 @@ public class Tarin {
 
         bufferWritter.close();
     }
-
     @Test
-    public void train_80() throws IOException {
-        String mac =tracePath;
-        double prenctile = 0.8;
+    public void test_single(){
+        //0,0,2,1,2,2,1
+        double prenctile = 1;
         int forecastSize = 1;
-        double[] traces = trace(mac);
+        double[] traces = trace(wintracePath);
+        ArimaParams arimaParams =  new ArimaParams(2,1,0,2,0,0,2);
+        StringBuilder builder = new StringBuilder();
+        int start = (int)(traces.length*0.8);
+        double rmse = iterator(traces, forecastSize, arimaParams, builder,prenctile,200,start);
+        System.out.println(builder);
+    }
+    @Test
+    public void train_80_mac() throws IOException {
+
+        double prenctile = 0.4;
+        int forecastSize = 1;
+        double[] traces = trace(wintracePath);
+        final int[] params = new int[]{3,2, 1, 0};
+        final int[] paramd = new int[]{1, 0};
+        int best_p, best_d, best_q, best_P, best_D, best_Q, best_m;
+        best_p = best_d = best_q = best_P = best_D = best_Q = best_m = -1;
+        double best_rmse = -1.0;
+        StringBuilder stringBuilder = new StringBuilder();
+        int i=0,min=0;
+        for(int p : params) for(int d : paramd) for(int q : params) for(int P : params)
+            for(int D : params) for(int Q : params) for(int m : params) try {
+                i++;
+                ArimaParams arimaParams = new ArimaParams(p, d, q, P, D, Q, m);
+                stringBuilder.append("******");
+                stringBuilder.append(i).append("th;******\n param: ").append(p+",").append(d+",").append(q+",").append(P+",").append(D+",").append(Q+",").append(m+",and then ");
+
+                final double rmse = iterator(traces, forecastSize, arimaParams, stringBuilder,prenctile,200,(int)(traces.length*0.2));
+                if ( !(rmse>50) && best_rmse < 0.0 || rmse < best_rmse) {
+                    best_rmse = rmse; best_p = p; best_d = d; best_q = q;
+                    best_P = P; best_D = D; best_Q = q; best_m = m;
+                    min =i;
+                    System.out.printf(
+                            "Better (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,p,d,q,P,D,Q,m);
+                }
+
+            } catch (final Exception ex) {
+                stringBuilder.append(" ==== wrong \n");
+                System.out.printf("Invalid: (p,d,q,P,D,Q,m)=(%d,%d,%d,%d,%d,%d,%d)\n", p,d,q,P,D,Q,m);
+
+            }
+
+        System.out.printf("Final Best (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n",
+                best_rmse,best_p,best_d,best_q,best_P,best_D,best_Q,best_m);
+        stringBuilder.append("the best min is ").append(min);
+        stringBuilder.append("????");
+        write(stringBuilder,"resources/param80.txt");
+    }
+    //windows test
+    @Test
+    public void train_80_win() throws IOException {
+        double prenctile = 0.2;
+        int forecastSize = 1;
+        double[] traces = trace(wintracePath);
         final int[] params = new int[]{2, 1, 0};
         final int[] paramd = new int[]{1, 0};
         int best_p, best_d, best_q, best_P, best_D, best_Q, best_m;
@@ -119,14 +177,15 @@ public class Tarin {
                 stringBuilder.append("******");
                 stringBuilder.append(i).append("th;******\n param: ").append(p+",").append(d+",").append(q+",").append(P+",").append(D+",").append(Q+",").append(m+",and then ");
 
-                final double rmse = iterator(traces, forecastSize, arimaParams, stringBuilder,prenctile,200);
-                if (best_rmse < 0.0 || rmse < best_rmse) {
+                final double rmse = iterator(traces, forecastSize, arimaParams, stringBuilder,prenctile,200,200);
+                if (!(rmse>50) && best_rmse < 0.0 || rmse < best_rmse) {
                     best_rmse = rmse; best_p = p; best_d = d; best_q = q;
                     best_P = P; best_D = D; best_Q = q; best_m = m;
                     min =i;
                     System.out.printf(
                             "Better (RMSE,p,d,q,P,D,Q,m)=(%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,p,d,q,P,D,Q,m);
                 }
+
             } catch (final Exception ex) {
                 stringBuilder.append(" ==== wrong \n");
                 System.out.printf("Invalid: (p,d,q,P,D,Q,m)=(%d,%d,%d,%d,%d,%d,%d)\n", p,d,q,P,D,Q,m);
