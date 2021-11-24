@@ -125,10 +125,11 @@ public class Tarin {
         int x = (int)(traces.length*0.8);
         double [] trainTest = new double[x];
         final int[] params = new int[]{5,4,3,2, 1, 0};
+        final  int[] paramPQD = new int[]{3,2,1};
         final int[] paramd = new int[]{1, 0};
         System.arraycopy(traces,0,trainTest,0,trainTest.length);
-        for(int p : params) for(int d : paramd) for(int q : params) for(int P : params)
-            for(int D : params) for(int Q : params) for(int m : params)try {
+        for(int p : params) for(int d : paramd) for(int q : params) for(int P : paramPQD)
+            for(int D : paramPQD) for(int Q : paramPQD) for(int m : paramPQD)try {
                 ArimaParams arimaParams = new ArimaParams(p, d, q, P, D, Q, m);
                 ForecastResult forecastResult = Arima.forecast_arima(trainTest, 1, arimaParams);
                 double[] forecast = forecastResult.getForecast();
@@ -260,7 +261,7 @@ public class Tarin {
         int forecastSize = 1;
         double[] traces = trace(mac);
         //ArimaParams arimaParams = new ArimaParams(2,1,0,2,0,0,2);
-        ArimaParams arimaParams = new ArimaParams(5,1,2,5,0,1,5);
+        ArimaParams arimaParams = new ArimaParams(5,1,5,3,1,3,2);
         StringBuilder builder = new StringBuilder();
 
         test_last_20(traces,forecastSize,arimaParams,builder);
