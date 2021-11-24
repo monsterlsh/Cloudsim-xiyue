@@ -34,6 +34,6 @@ public class Fliestring {
     }
     @Test
     public void test_double(){
-        System.out.println((9.885235494512868E7)>50);
+        System.out.println((9.2E10)>50);
     }
 }
