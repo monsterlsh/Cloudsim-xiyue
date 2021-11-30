@@ -1,0 +1,4 @@
+{ 2,0,0,2,0,0,2} in_90 test 20% win=100 
+ the rmseaveg is : 0,the mapeaveg is: 0,the smapeaveg is:0
+the number of too large forecast in last 20% iteration is 0{ 2,0,0,2,0,0,2} in_90 test 20% win=100 
+ 

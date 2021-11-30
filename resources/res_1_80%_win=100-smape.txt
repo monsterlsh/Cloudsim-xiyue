@@ -1,0 +1,11 @@
+0.8%---windowsize=100---RMSE:19.03, MAPE:1.31, SMAPE:0.28     param: 2,1,2,2,2,2,0,and then 
+0.8%---windowsize=100---RMSE:2.76, MAPE:0.22, SMAPE:0.2     param: 2,1,2,2,0,1,2,and then 
+0.8%---windowsize=100---RMSE:2.29, MAPE:0.19, SMAPE:0.17     param: 2,1,2,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE:2.22, MAPE:0.18, SMAPE:0.16     param: 2,1,1,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE:2.2, MAPE:0.18, SMAPE:0.16     param: 2,1,0,2,0,1,2,and then 
+0.8%---windowsize=100---RMSE:2.13, MAPE:0.17, SMAPE:0.15     param: 2,1,0,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE:2.1, MAPE:0.17, SMAPE:0.16     param: 2,0,0,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE:2.09, MAPE:0.17, SMAPE:0.15     param: 2,0,0,1,1,0,2,and then 
+0.8%---windowsize=100---RMSE:2.07, MAPE:0.16, SMAPE:0.15     param: 0,0,1,2,1,0,2,and then 
+Final Best (RMSE,MAPE,SMAPE,p,d,q,P,D,Q,m)=(2.07, 0.16, 0.15,0,1,0,2,1,1,2)
+the best min is 2041

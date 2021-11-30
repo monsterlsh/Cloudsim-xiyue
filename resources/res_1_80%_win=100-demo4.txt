@@ -1,0 +1,7 @@
+0.8%---windowsize=100---RMSE, MAPE28.22, 0.42    param: 2,1,2,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE, MAPE26.93, 0.41    param: 2,1,1,2,0,0,1,and then 
+0.8%---windowsize=100---RMSE, MAPE26.82, 0.4    param: 2,1,0,2,0,1,2,and then 
+0.8%---windowsize=100---RMSE, MAPE25.32, 0.38    param: 2,1,0,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE, MAPE25.09, 0.39    param: 2,0,0,2,0,0,2,and then 
+Final Best (RMSE,MAPE,p,d,q,P,D,Q,m)=(25.09, 0.39, 2,0,0,2,0,0,2)
+the best min is 673

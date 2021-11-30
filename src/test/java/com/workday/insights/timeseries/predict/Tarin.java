@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class Tarin {
     static String wininput = "D:\\Data\\param.txt";
     static final String tracePath="/Users/lsh/Documents/ecnuIcloud/Cloudsim-xiyue/resources/instanceid_1.csv";
-    static final String wintracePath = "resources/instanceid_1.csv";
-    DecimalFormat df = new DecimalFormat("#.000");
+    static final String wintracePath = "resources/instanceid_90.csv";
+    DecimalFormat df = new DecimalFormat("#.##");
     List<ArimaParams> list = new ArrayList<>();
     public void setListToString(StringBuilder builder){
         if(list.isEmpty()){
@@ -70,11 +70,11 @@ public class Tarin {
     //一个文件中的80%
     double [] iterator(double [] traces,int forecastSize,ArimaParams arimaParams,StringBuilder builder,double precent,int len,int start){
 
-        double rmseAll = 0.0,mapeAll=0.0;
-        double [] res = new double[3];
-        res[2]=0;
+        double rmseAll = 0.0,mapeAll=0.0,smapeALL=0.0;
+        double [] res = new double[4];
+        res[3]=0;
         BigDecimal bigrmse = new BigDecimal(0.0);
-        int size = (int)(traces.length*precent),k=size-start;
+        int size = (int)(traces.length*precent),k=size-start,ks=k;
         for(int i=start;i<size;i+=forecastSize){
 
             double[] origin = new double[len];
@@ -85,7 +85,7 @@ public class Tarin {
             ForecastResult forecastResult = Arima.forecast_arima(origin, forecastSize, arimaParams);
             double[] forecast = forecastResult.getForecast();
             double temp = 0.0;
-            double mape=0;
+            double mape=0,smape=0;
             for (int j = 0; j < forecast.length; ++j) {
                 //求rmse
                 temp += Math.pow(forecast
@@ -94,46 +94,50 @@ public class Tarin {
 
                 mape += Math.abs(forecast
                         [j] - answer[j]);
+                if(forecast[j]!=0 && answer[j]!=0){
+                    smape += 2*mape/(forecast
+                            [j] + answer[j]);
+                }else smape=0;
+
                 if(answer[j]!=0) mape /= answer[j];
             }
-            mape = 100*mape/forecast.length;
+            mape = mape/forecast.length;
             final double rmse = Math.pow(temp / forecast.length, 0.5);
             rmseAll += rmse/k;
             mapeAll +=mape/k;
+            smapeALL +=smape/k;
             bigrmse = bigrmse.add(new BigDecimal(rmse));
             if(rmseAll>30 || mapeAll>30) {
-
-                //System.out.print("[大于50 pass]-----");
-                res[2]=-1;
+                res[3]=-1;
                 break;
             }
         }
         rmseAll = bigrmse.doubleValue()/k;
-       // builder.append(" the rmse is : ").append(rmseAll).append("\n");
-        //if(rmseAll >100) rmseAll =110;
+
         res[0]=rmseAll;
         res[1]=mapeAll;
+        res[2]=smapeALL;
         return res;
 
     }
 
     @Test
-    public void train_80_win() throws IOException {
+    public void train_80_win_smape() throws IOException {
 
         double prenctile = 0.8;
 
         int forecastSize = 1;
+        //double[] traces = trace("resources/instanceid_1.csv");
         double[] traces = trace(wintracePath);
-
         //20 2000
         int windows = 100;
         int start = windows;
-        final int[] params = new int[]{5,4,3,2, 1, 0};
-        final int[] paramd = new int[]{5,4,3,2, 1, 0};
+        final int[] params = new int[]{2, 1, 0};
+        final int[] paramd = new int[]{2, 1, 0};
         //final int[] paramP = new int[]{2, 1, 0};
         int best_p, best_d, best_q, best_P, best_D, best_Q, best_m;
         best_p = best_d = best_q = best_P = best_D = best_Q = best_m = -1;
-        double best_rmse = -1,best_mape=-1;
+        double best_rmse = -1,best_mape=-1,best_smape=-1;
         StringBuilder stringBuilder = new StringBuilder();
         int i=0,min=0;
         for(int p : params) for(int d : paramd) for(int q : params) for(int P : paramd)
@@ -142,19 +146,21 @@ public class Tarin {
                 ArimaParams arimaParams = new ArimaParams(p, d, q, P, D, Q, m);
                 double [] res = iterator(traces, forecastSize, arimaParams, stringBuilder,prenctile,windows,start);
                 final double rmse = res[0],mape = res[1];
-                if(res[2]==-1){
+                if(res[3]==-1){
                     System.out.printf(
-                            "pass (RMSE,MAPE,p,d,q,P,D,Q,m)=(%f,%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,mape,p,d,q,P,D,Q,m);
+                            "pass (RMSE,MAPE,SMAPE,p,d,q,P,D,Q,m)=(%f,%f,%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,mape,res[2],p,d,q,P,D,Q,m);
                     continue;
                 }
                 if ( best_rmse < 0.0 || rmse < best_rmse) {
                     best_rmse = rmse; best_p = p; best_d = d; best_q = q;
-                    best_P = P; best_D = D; best_Q = q; best_m = m;best_mape = mape;
+                    best_P = P; best_D = D; best_Q = q; best_m = m;
+                    best_mape = mape;
+                    best_smape = res[2];
                     min =i;
 
                     System.out.printf(
-                            "Better (RMSE,MAPE,p,d,q,P,D,Q,m)=(%f,%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,mape,p,d,q,P,D,Q,m);
-                    stringBuilder.append(prenctile).append("%---windowsize=").append(windows).append("---RMSE, MAPE"+df.format(best_rmse)+", "+df.format(best_mape)).
+                            "Better (RMSE,MAPE,SMAPE,p,d,q,P,D,Q,m)=(%f,%f,%f,%d,%d,%d,%d,%d,%d,%d)\n", rmse,mape,res[2],p,d,q,P,D,Q,m);
+                    stringBuilder.append(prenctile).append("%---windowsize=").append(windows).append("---RMSE:"+df.format(best_rmse)+", MAPE:"+df.format(best_mape)).append(", SMAPE:"+df.format(best_smape)+" ").
                             append("    param: ").append(p+",").append(d+",").append(q+",").append(P+",").append(D+",").append(Q+",").append(m+",and then \n");
 
                 }
@@ -164,14 +170,14 @@ public class Tarin {
                 //System.out.printf("\nInvalid: (p,d,q,P,D,Q,m)=(%d,%d,%d,%d,%d,%d,%d)\n", p,d,q,P,D,Q,m);
 
             }
-        stringBuilder.append("Final Best (RMSE,MAPE,p,d,q,P,D,Q,m)=(").append(df.format(best_rmse)).append(", ").append(df.format(best_mape)).append(", ").append(best_p).append(","+best_q).append(","+best_d).append(","+best_P).append(","+best_D)
+        stringBuilder.append("Final Best (RMSE,MAPE,SMAPE,p,d,q,P,D,Q,m)=(").append(df.format(best_rmse)).append(", ").append(df.format(best_mape)).append(", ").append(df.format(best_smape)+",").append(best_p).append(","+best_q).append(","+best_d).append(","+best_P).append(","+best_D)
                 .append(","+best_Q).append(","+best_m).append(")\n");
         stringBuilder.append("the best min is ").append(min);
         setListToString(stringBuilder);
-        write(stringBuilder,"resources/res_1_80%_win=100.txt");
+        write(stringBuilder,"resources/res_1_80%_win=100-smape.txt");
     }
     @Test
-    public void train_80_win_demo2() throws IOException {
+    public void train_80_win_demo3() throws IOException {
 
         double prenctile = 0.8;
 
@@ -183,14 +189,19 @@ public class Tarin {
         int start = windows;
         final int[] params = new int[]{2, 1, 0};
         final int[] paramd = new int[]{2, 1, 0};
-        //final int[] paramP = new int[]{2, 1, 0};
+        final int[] paramP = new int[]{2, 1, 0};
         int best_p, best_d, best_q, best_P, best_D, best_Q, best_m;
         best_p = best_d = best_q = best_P = best_D = best_Q = best_m = -1;
         double best_rmse = -1,best_mape=-1;
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{2,1,0}: ").append(wintracePath).append("\n");
         int i=0,min=0;
-        for(int p : params) for(int d : paramd) for(int q : params) for(int P : paramd)
-            for(int D : paramd) for(int Q : paramd) for(int m : paramd) try {
+        //int P=0, D=0, Q=0, m=0;
+        //int m=0;
+        for(int p : params) for(int d : paramd) for(int q : params)
+            for(int P : paramd) for(int D : paramd) for(int Q : paramd)
+                for(int m : paramd)
+                try {
                 i++;
                 ArimaParams arimaParams = new ArimaParams(p, d, q, P, D, Q, m);
                 double [] res = iterator(traces, forecastSize, arimaParams, stringBuilder,prenctile,windows,start);
@@ -221,7 +232,7 @@ public class Tarin {
                 .append(","+best_Q).append(","+best_m).append(")\n");
         stringBuilder.append("the best min is ").append(min);
         setListToString(stringBuilder);
-        write(stringBuilder,"resources/res_1_80%_win=100_demo2.txt");
+        write(stringBuilder,"resources/res_90_80%_win=100.txt");
     }
 
     @Test
@@ -300,10 +311,10 @@ public class Tarin {
 
     double test_last_20(double [] traces,int forecastSize,ArimaParams arimaParams,StringBuilder builder){
 
-        double rmseAll = 0.0,mapeAll=0.0;
+        double rmseAll = 0.0,mapeAll=0.0,smapeALL=0.0;
         int k=traces.length-(int)(traces.length*0.8);
-        double rmse=0,mape=0.0;
-        int lens =100;
+        double rmse=0,mape=0.0,smape=0.0;
+        int lens =10;
         int x=0;
         for(int i=(int)(traces.length*0.8);i<traces.length;i+=forecastSize){
             double[] origin = new double[lens];
@@ -321,18 +332,24 @@ public class Tarin {
                             [j] - answer[j], 2);
                     mape += Math.abs(forecast
                             [j] - answer[j]);
+                    if(answer[j]==0 && forecast[j]==0) smape =0.0;
+                    else smape = 2*mape/(forecast
+                            [j] + answer[j]);
                     if(answer[j]!=0)mape/=answer[j];
+
                 }
                 rmse = Math.pow(temp / forecast.length, 0.5);
-                mape = mape/forecast.length*100;
+                mape = mape/forecast.length;
+                smape /= forecast.length;
                 if(rmse>500){
                     k--;
                     x++;
                     continue;
                 }
                 rmseAll += rmse;
-                mapeAll+=mape/(k-7);
-                builder.append("[data I : " ).append(i).append(" (rmse:" + df.format( rmse)).append(", mape: "+ df.format(mape)).append(") ] \n");
+                mapeAll+=mape;
+                smapeALL+=smape;
+                builder.append("[data I : " ).append(i).append(" answer: "+answer[0] + ",forecast :" +forecast[0]).append(" (rmse:" + df.format( rmse)).append(", mape: "+ df.format(mape)).append(", smape: "+ df.format(smape)).append(") ] \n");
             }
             catch (Exception e){
                 System.out.println("wrong!!!!");
@@ -342,9 +359,10 @@ public class Tarin {
         }
         rmseAll /= k;
         mapeAll /=k;
-        builder.append(" the rmseaveg is : ").append(df.format(rmseAll)).append("the mapeaveg is: ").append(df.format(mapeAll)).append("\n");
+        smapeALL /= k;
+        builder.append("the rmseaveg is : ").append(df.format(rmseAll)).append(",the mapeaveg is: ").append(df.format(mapeAll)).append(",the smapeaveg is:").append(df.format(smapeALL)).append("\n");
         System.out.println(builder);
-        System.out.println(" the number of too large forecast in last 20% iteration is " + x);
+        builder.append("the number of too large forecast in last 20% iteration is " + x);
         return rmseAll;
     }
     @Test
@@ -461,12 +479,19 @@ public class Tarin {
         // 2,0,0,1,1,2,3  ok
         // 1,0,0,2,2,2,0 in_9
         // 2,2,2,2,2,2,0
-        ArimaParams arimaParams = new ArimaParams(2,0,0,1,1,2,3);
+        // 2,0,0,2,0,0,2
+        //2,1,1,2,0,0,2 in_90
+        // 2,1,2,2,2,2,0 in_90
+        //2,0,0,2,0,0,2 in_90
+        //0,1,0,2,1,1,2 in_1
+        //0,1,0,2,1,1,2
+        ArimaParams arimaParams = new ArimaParams(2,0,0,2,0,0,2);
         StringBuilder builder = new StringBuilder();
-
+        builder.append("{ 2,0,0,2,0,0,2} in_90 test 20% win=100 \n ");
         test_last_20(traces,forecastSize,arimaParams,builder);
         //System.out.println(builder);
-       write(builder,"resources/res_1_20%_win=100_test.txt");
+        builder.append("{ 2,0,0,2,0,0,2} in_90 test 20% win=100 \n ");
+       write(builder,"resources/res_90_20%_win=10.txt");
     }
 
     public ArimaParams averageParam(){

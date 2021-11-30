@@ -1,0 +1,12 @@
+{2,1,0}: resources/instanceid_90.csv
+0.8%---windowsize=100---RMSE, MAPE19.03, 1.31    param: 2,1,2,2,2,2,0,and then 
+0.8%---windowsize=100---RMSE, MAPE2.76, 0.22    param: 2,1,2,2,0,1,2,and then 
+0.8%---windowsize=100---RMSE, MAPE2.29, 0.19    param: 2,1,2,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE, MAPE2.22, 0.18    param: 2,1,1,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE, MAPE2.2, 0.18    param: 2,1,0,2,0,1,2,and then 
+0.8%---windowsize=100---RMSE, MAPE2.13, 0.17    param: 2,1,0,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE, MAPE2.1, 0.17    param: 2,0,0,2,0,0,2,and then 
+0.8%---windowsize=100---RMSE, MAPE2.09, 0.17    param: 2,0,0,1,1,0,2,and then 
+0.8%---windowsize=100---RMSE, MAPE2.07, 0.16    param: 0,0,1,2,1,0,2,and then 
+Final Best (RMSE,MAPE,p,d,q,P,D,Q,m)=(2.07, 0.16, 0,1,0,2,1,1,2)
+the best min is 2041
